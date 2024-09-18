@@ -1,5 +1,3 @@
 node_modules/
-electron-tutorial/*
-!electron-tutorial/Vortex/
-electron-tutorial/Vortex/node_modules/
+.gitignore
 .env
