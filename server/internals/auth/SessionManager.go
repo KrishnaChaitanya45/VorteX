@@ -124,7 +124,7 @@ func (sm *SessionManager) SetCookies(userId string, res http.ResponseWriter) err
 		return err
 	}
 	cookie := http.Cookie{
-		Name:    "VoreX-Access-Token",
+		Name:    "VorteX-Access-Token",
 		Value:   session.AccessToken,
 		Path:    "/",
 		Expires: session.Expiry,
@@ -224,4 +224,28 @@ func (sm *SessionManager) AutoLogout(ctx context.Context, userID string, r *http
 	}
 
 	return nil
+}
+
+func (sm *SessionManager) ValidateUser(ctx context.Context, req *http.Request) (string, error) {
+	sm.mutex.Lock()
+	defer sm.mutex.Unlock()
+
+	cookie, err := req.Cookie("Vortex-Access-Token")
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return "", newSessionError("Get", fmt.Errorf("%w: no access token found in cookies", ErrSessionNotFound))
+		}
+		return "", newSessionError("Get", fmt.Errorf("%w: failed to retrieve cookie", ErrDatabaseOperation))
+	}
+
+	statement := "SELECT UserId FROM tokens WHERE AccessToken = $1"
+
+	var id string
+	err = sm.database.QueryRow(statement, cookie.Value).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", errors.New("no user found with the token")
+		}
+	}
+	return id, err
 }

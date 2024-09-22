@@ -15,5 +15,10 @@ func (app *App) Router() http.Handler {
 	mux.HandlerFunc(http.MethodGet, "/auth/login", app.Login)
 	mux.HandlerFunc(http.MethodGet, "/auth/oauth", app.OAuthHandler)
 	mux.HandlerFunc(http.MethodGet, "/oauth/google/callback", app.OAuthCallback)
+	mux.HandlerFunc(http.MethodGet, "/set-cookies", app.SetCookies)
+	mux.HandlerFunc(http.MethodPost, "/todo/add", app.AddTodo)
+	mux.HandlerFunc(http.MethodPost, "/reminders/add", app.AddReminder)
+	mux.HandlerFunc(http.MethodGet, "/reminders/get", app.GetReminders)
+
 	return mux
 }

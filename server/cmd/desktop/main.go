@@ -15,6 +15,8 @@ type App struct {
 	conf           *oauth2.Config
 	SessionManager *session_manager.SessionManager
 	userModel      *models.UserModel
+	reminderModel  *models.ReminderModel
+	taskModel      *models.TaskModel
 }
 
 func main() {
@@ -36,15 +38,32 @@ func main() {
 	if err != nil {
 		ErrorLog.Fatal(err)
 	}
+
 	userModel := &models.UserModel{
 		DB: db,
 	}
-	userModel.Init()
+	userModel.InitUser()
+
+	taskModel := &models.TaskModel{
+		DB: db,
+	}
+	reminderModel := &models.ReminderModel{
+		DB: db,
+	}
+	err = taskModel.InitTask()
+	if err != nil {
+		ErrorLog.Fatalf("FAILED TO INITIALIZE TASKS %v", err)
+	}
+	err = reminderModel.InitReminder()
+	if err != nil {
+		ErrorLog.Fatalf("FAILED TO INITIALIZE REMINDERS %v", err)
+	}
+
 	sessionManager, err := session_manager.Setup(db)
 	if err != nil {
 		ErrorLog.Fatal(err)
 	}
-	app := App{conf: conf, SessionManager: sessionManager, userModel: userModel}
+	app := App{conf: conf, SessionManager: sessionManager, userModel: userModel, taskModel: taskModel, reminderModel: reminderModel}
 	//? Remember to close the database
 	defer db.Close()
 

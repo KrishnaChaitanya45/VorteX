@@ -10,7 +10,7 @@ import (
 
 var (
 	InsertUser = "INSERT INTO users(ID, Email, UserName, Picture) VALUES ($1, $2, $3, $4)"
-	Init       = `CREATE TABLE IF NOT EXISTS users(
+	InitUser   = `CREATE TABLE IF NOT EXISTS users(
 		ID TEXT NOT NULL PRIMARY KEY,
 		Email TEXT NOT NULL UNIQUE,
 		UserName TEXT NOT NULL UNIQUE,
@@ -30,21 +30,21 @@ type UserModel struct {
 	DB *sql.DB
 }
 
-func (u *UserModel) Init() error {
-	_, err := u.DB.Exec(Init)
+func (u *UserModel) InitUser() error {
+	_, err := u.DB.Exec(InitUser)
 	return err
 }
 
-func (u *UserModel) Exists(Email string) (string, error) {
+func (u *UserModel) ExistsUser(Email string) (string, error) {
 	var userId string
 	err := u.DB.QueryRow(ExistsEmail, Email).Scan(&userId)
 	return userId, err
 }
 
-func (u *UserModel) Insert(UserName, Picture, Email string) (string, error) {
+func (u *UserModel) InsertUser(UserName, Picture, Email string) (string, error) {
 
 	var id string
-	id, err := u.Exists(Email)
+	id, err := u.ExistsUser(Email)
 	if err != nil {
 		id = uuid.New().String()
 
